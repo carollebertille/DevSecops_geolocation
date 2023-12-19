@@ -94,11 +94,11 @@ pipeline {
               }
             steps {
                 script {
-                    sh '''
-                        cd auth 
+                    sh '
+                        
                         docker build -t edennolan2021/geolocation :${BUILD_NUMBER} .
-                        cd -
-                    '''
+                      
+                    '
                 }
             }
         }
@@ -110,11 +110,11 @@ pipeline {
             steps {
                 script {
                     
-                    sh '''
+                    sh '
                        
                         docker push edennolan2021/geolocation:${BUILD_NUMBER} 
                         
-                    '''
+                    '
                 }
             }
         }
