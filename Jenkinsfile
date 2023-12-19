@@ -12,17 +12,18 @@ pipeline {
     
     stages {
 
-        stage('Setup parameters') {
+       stage('Setup parameters') {
+          
             steps {
                 script {
                     properties([
-                        parameters([
-                            choice(
-                                choices: ['dev', 'main'], 
-                                name: 'ENVIRONMENT'
-                            ),
-                        ]),
-
+                        parameters([    
+                        
+                        choice(
+                            choices: ['dev','main'], 
+                            name: 'Environment'   
+                                ),
+                      ])
                     ])
                 }
             }
