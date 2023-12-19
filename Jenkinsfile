@@ -19,6 +19,16 @@ pipeline {
                             choices: ['dev','main'], 
                             name: 'Environment'   
                                 ),
+                         string(
+                                defaultValue: '',
+                                description: 'DockerHub Username',
+                                name: 'DOCKERHUB'
+                            ),
+                            password(
+                                defaultValue: '',
+                                description: 'DockerHub Password',
+                                name: 'DOCKERHUB_PSW'
+                            ),
                       ])
                     ])
                 }
@@ -75,11 +85,14 @@ pipeline {
         }
      stage('Docker Login') {
             steps {
+                // Example of using DOCKERHUB and DOCKERHUB_PSW in a command
                 script {
-                    // Log in to Docker Hub
-                    sh '''
-                        echo "${DOCKERHUB_PSW}" | docker login --username "${DOCKERHUB_USR}" --password-stdin
-                    '''
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_PSW', usernameVariable: 'DOCKERHUB')]) {
+                        sh """
+                            docker login -u \$DOCKERHUB -p \$DOCKERHUB_PSW
+                            mvn test
+                        """
+                    }
                 }
             }
         }
