@@ -33,7 +33,7 @@ pipeline {
               }
             agent {
                 docker {
-                  image 'maven:3.9.5-ibmjava-8'
+                  image 'maven:3.9.6-amazoncorretto-8-debian-bookworm'
                 }
                }
             steps {
@@ -68,7 +68,7 @@ pipeline {
               }
             agent {
                 docker {
-                  image 'maven:3.9.5-ibmjava-8'
+                  image 'maven:3.9.6-amazoncorretto-8-debian-bookworm'
                 }
                }
             steps {
