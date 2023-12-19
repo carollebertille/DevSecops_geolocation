@@ -27,7 +27,7 @@ pipeline {
        stage('Code test') {
              when{  
             expression {
-              env.Environment == 'main' }
+              params.Environment == 'main' }
               }
             agent {
                 docker {
@@ -41,7 +41,7 @@ pipeline {
         stage('SonarQube analysis') {
            when{  
             expression {
-              env.Environment == 'main' }
+              params.Environment == 'main' }
               }
             agent {
                 docker {
@@ -62,7 +62,7 @@ pipeline {
       stage('Generate artifact') {
            when{  
             expression {
-              env.Environment == 'main' }
+              params.Environment == 'main' }
               }
             agent {
                 docker {
@@ -87,7 +87,7 @@ pipeline {
         stage('Build image') {
            when{  
             expression {
-              env.Environment == 'main' }
+              params.Environment == 'main' }
               }
             steps {
                 script {
@@ -100,7 +100,7 @@ pipeline {
         stage('push auth ') {
            when{  
             expression {
-              env.Environment == 'main' }
+              params.Environment == 'main' }
               }
             steps {
                 script {
