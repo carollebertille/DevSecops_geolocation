@@ -9,18 +9,14 @@ pipeline {
     environment {
         DOCKERHUB = credentials('dockerhub') 
     }
-    
     stages {
-
        stage('Setup parameters') {
-          
             steps {
                 script {
                     properties([
                         parameters([    
-                        
                         choice(
-                            choices: ['DEV','MAIN'], 
+                            choices: ['dev','main'], 
                             name: 'Environment'   
                                 ),
                       ])
@@ -31,7 +27,7 @@ pipeline {
        stage('Code test') {
              when{  
             expression {
-              env.ENVIRONMENT == 'MAIN' }
+              env.Environment == 'main' }
               }
             agent {
                 docker {
@@ -45,7 +41,7 @@ pipeline {
         stage('SonarQube analysis') {
            when{  
             expression {
-              env.ENVIRONMENT == 'main' }
+              env.Environment == 'main' }
               }
             agent {
                 docker {
@@ -66,7 +62,7 @@ pipeline {
       stage('Generate artifact') {
            when{  
             expression {
-              env.ENVIRONMENT == 'main' }
+              env.Environment == 'main' }
               }
             agent {
                 docker {
@@ -89,9 +85,9 @@ pipeline {
         }
 
         stage('Build image') {
-           when{  b
+           when{  
             expression {
-              env.ENVIRONMENT == 'main' }
+              env.Environment == 'main' }
               }
             steps {
                 script {
@@ -104,7 +100,7 @@ pipeline {
         stage('push auth ') {
            when{  
             expression {
-              env.ENVIRONMENT == 'main' }
+              env.Environment == 'main' }
               }
             steps {
                 script {
@@ -120,7 +116,7 @@ pipeline {
     stage('Update dev-values ') {
       when{  
           expression {
-            env.ENVIRONMENT == 'main' }
+            env.Environment == 'main' }
           
             }
       
