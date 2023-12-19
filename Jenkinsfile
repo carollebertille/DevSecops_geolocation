@@ -18,7 +18,7 @@ pipeline {
                     properties([
                         parameters([
                             choice(
-                                choices: ['DEV', 'QA', 'PREPROD'], 
+                                choices: ['dev', 'main'], 
                                 name: 'ENVIRONMENT'
                             ),
                         ]),
@@ -30,7 +30,7 @@ pipeline {
        stage('Code test') {
              when{  
             expression {
-              env.ENVIRONMENT == 'DEV' }
+              env.ENVIRONMENT == 'main' }
               }
             agent {
                 docker {
@@ -44,7 +44,7 @@ pipeline {
         stage('SonarQube analysis') {
            when{  
             expression {
-              env.ENVIRONMENT == 'DEV' }
+              env.ENVIRONMENT == 'main' }
               }
             agent {
                 docker {
@@ -65,7 +65,7 @@ pipeline {
       stage('Generate artifact') {
            when{  
             expression {
-              env.ENVIRONMENT == 'DEV' }
+              env.ENVIRONMENT == 'main' }
               }
             agent {
                 docker {
@@ -90,7 +90,7 @@ pipeline {
         stage('Build image') {
            when{  b
             expression {
-              env.ENVIRONMENT == 'DEV' }
+              env.ENVIRONMENT == 'main' }
               }
             steps {
                 script {
@@ -105,7 +105,7 @@ pipeline {
         stage('push auth ') {
            when{  
             expression {
-              env.ENVIRONMENT == 'DEV' }
+              env.ENVIRONMENT == 'main' }
               }
             steps {
                 script {
@@ -121,7 +121,7 @@ pipeline {
     stage('Update dev-values ') {
       when{  
           expression {
-            env.ENVIRONMENT == 'DEV' }
+            env.ENVIRONMENT == 'main' }
           
             }
       
