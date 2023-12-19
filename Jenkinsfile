@@ -22,9 +22,9 @@ pipeline {
             name: 'DOCKERHUB_PSW'
         )
     }
-    #environment {
+    /*environment {
         #DOCKERHUB = credentials('dockerhub') 
-    }
+    }*/
     stages {
        stage('Code test') {
              when{  
