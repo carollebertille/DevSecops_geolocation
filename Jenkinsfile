@@ -106,9 +106,7 @@ pipeline {
                 script {
                     
                     sh '''
-                       
                         docker push edennolan2021/geolocation:${BUILD_NUMBER} 
-                        
                     '''
                 }
             }
@@ -117,12 +115,9 @@ pipeline {
       when{  
           expression {
             env.Environment == 'main' }
-          
             }
-      
             steps {
                 script {
-
                     sh '''
 rm -rf k8s-manifests || true
 git clone git@github.com:carollebertille/k8s-manifests.git
