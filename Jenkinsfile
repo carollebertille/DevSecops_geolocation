@@ -87,7 +87,7 @@ pipeline {
             steps {
                 // Example of using DOCKERHUB and DOCKERHUB_PSW in a command
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_PSW', usernameVariable: 'DOCKERHUB')]) {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKERHUB_PSW', usernameVariable: 'DOCKERHUB')]) {
                         sh """
                             docker login -u \$DOCKERHUB -p \$DOCKERHUB_PSW
                             mvn test
