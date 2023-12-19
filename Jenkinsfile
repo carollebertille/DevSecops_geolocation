@@ -111,41 +111,6 @@ pipeline {
                 }
             }
         }
-    stage('Update dev-values ') {
-      when{  
-          expression {
-            env.Environment == 'main' }
-            }
-            steps {
-                script {
-                    sh '''
-rm -rf k8s-manifests || true
-git clone git@github.com:carollebertille/k8s-manifests.git
-cd k8s-manifests/geolocation
-ls
-pwd
-cat << EOF > charts/phonebook-app/dev-values.yaml
-image:
-  repository: edennolan2021/geocation
-  tag: ${BUILD_NUMBER}
-EOF
-git config --global user.name "carollebertille"
-git config --global user.email "carollematchum@gmail.com"
 
-git add -A 
-git commit -m "change from jenkins CI"
-git push 
-                    '''
-                }
-            }
-        }
-stage('wait for argocd') {
-            steps {
-                script {
-                    sh '''
-                     sleep 300
-                    '''
-                }
-            }
-        }
+ }
 }
