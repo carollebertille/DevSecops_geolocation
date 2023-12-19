@@ -6,34 +6,26 @@ pipeline {
         timeout (time: 60, unit: 'MINUTES')
         timestamps()
       }
-    environment {
-        DOCKERHUB = credentials('dockerhub') 
+    parameters {
+        choice(
+            choices: ['dev', 'main'], 
+            name: 'Environment'
+        )
+        string(
+            defaultValue: 'defaultUsername',
+            description: 'DockerHub Username',
+            name: 'DOCKERHUB'
+        )
+        password(
+            defaultValue: 'defaultPassword',
+            description: 'DockerHub Password',
+            name: 'DOCKERHUB_PSW'
+        )
+    }
+    #environment {
+        #DOCKERHUB = credentials('dockerhub') 
     }
     stages {
-       stage('Setup parameters') {
-            steps {
-                script {
-                    properties([
-                        parameters([    
-                        choice(
-                            choices: ['dev','main'], 
-                            name: 'Environment'   
-                                ),
-                         string(
-                                defaultValue: '',
-                                description: 'DockerHub Username',
-                                name: 'DOCKERHUB'
-                            ),
-                            password(
-                                defaultValue: '',
-                                description: 'DockerHub Password',
-                                name: 'DOCKERHUB_PSW'
-                            ),
-                      ])
-                    ])
-                }
-            }
-        }
        stage('Code test') {
              when{  
             expression {
