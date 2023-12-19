@@ -153,7 +153,4 @@ stage('wait for argocd') {
                 }
             }
         }
-
-
 }
-        
