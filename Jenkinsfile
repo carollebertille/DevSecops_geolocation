@@ -33,7 +33,7 @@ pipeline {
               }
             agent {
                 docker {
-                  image 'maven:3.8.8-amazoncorretto-8-debian'
+                  image 'maven:3.8-eclipse-temurin-17'
                 }
                }
             steps {
@@ -68,7 +68,7 @@ pipeline {
               }
             agent {
                 docker {
-                  image 'maven:3.8.8-amazoncorretto-8-debian'
+                  image 'maven:3.8-eclipse-temurin-17'
                 }
                }
             steps {
