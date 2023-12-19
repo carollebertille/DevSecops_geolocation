@@ -20,7 +20,7 @@ pipeline {
                         parameters([    
                         
                         choice(
-                            choices: ['dev','main'], 
+                            choices: ['DEV','MAIN'], 
                             name: 'Environment'   
                                 ),
                       ])
@@ -31,7 +31,7 @@ pipeline {
        stage('Code test') {
              when{  
             expression {
-              env.ENVIRONMENT == 'main' }
+              env.ENVIRONMENT == 'MAIN' }
               }
             agent {
                 docker {
