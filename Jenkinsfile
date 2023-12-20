@@ -98,7 +98,23 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker build -t edennolan2021/geolocation :${BUILD_NUMBER} .
+                        docker build -t edennolan2021/geolocation:${BUILD_NUMBER} .
+                    '''
+                }
+            }
+        }
+        stage('Scan Image with  SNYK') {
+            agent any
+            environment{
+                SNYK_TOKEN = credentials('snyk_token')
+            }
+            steps {
+                script{
+                    sh '''
+                    echo "Starting Image scan edennolan2021/geolocation:${BUILD_NUMBER} ..." 
+                    echo There is Scan result : 
+                    SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker edennolan2021/geolocation:${BUILD_NUMBER} --json ||  if [[ $? -gt "1" ]];then echo -e "Warning, you must see scan result \n" ;  false; elif [[ $? -eq "0" ]]; then   echo "PASS : Nothing to Do"; elif [[ $? -eq "1" ]]; then   echo "Warning, passing with something to do";  else false; fi)
+                    echo "Scan ended"
                     '''
                 }
             }
