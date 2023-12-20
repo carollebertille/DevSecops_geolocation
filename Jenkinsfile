@@ -31,11 +31,11 @@ pipeline {
             expression {
               params.Environment == 'main' }
               }
-            agent {
+            /*agent {
                 docker {
                   image 'maven:3.8-eclipse-temurin-17'
                 }
-               }
+               }*/
             steps {
                 sh 'mvn test '
             }
@@ -45,16 +45,16 @@ pipeline {
             expression {
               params.Environment == 'main' }
               }
-            agent {
+            /*agent {
                 docker {
                   image 'sonarsource/sonar-scanner-cli:4.7.0'
                 }
-               }
+               }*/
                environment {
-        CI = 'true'
-        //  scannerHome = tool 'Sonar'
-        scannerHome='/opt/sonar-scanner'
-    }
+                  CI = 'true'
+                  //  scannerHome = tool 'Sonar'
+                scannerHome='/opt/sonar-scanner'
+               }
             steps{
                 withSonarQubeEnv('Sonar') {
                     sh "${scannerHome}/bin/sonar-scanner"
@@ -66,13 +66,13 @@ pipeline {
             expression {
               params.Environment == 'main' }
               }
-            agent {
+            /*agent {
                 docker {
                   image 'maven:3.8-eclipse-temurin-17'
                 }
-               }
+               }*/
             steps {
-                sh 'clean package '
+                sh 'mvn clean package '
             }
         }
      stage('Docker Login') {
@@ -82,7 +82,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKERHUB_PSW', usernameVariable: 'DOCKERHUB')]) {
                         sh """
                             docker login -u \$DOCKERHUB -p \$DOCKERHUB_PSW
-                            mvn test
+                           
                         """
                     }
                 }
