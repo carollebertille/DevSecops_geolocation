@@ -1,6 +1,9 @@
 @Library('jenkins-shared-library')_
 pipeline {
     agent any 
+    tools {
+        maven 'Maven' // Name of the Maven installation configured in Jenkins
+    }
     options {
         buildDiscarder(logRotator(numToKeepStr:'2'))
         disableConcurrentBuilds()
