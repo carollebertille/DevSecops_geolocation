@@ -50,7 +50,7 @@ pipeline {
               params.Environment == 'main' }
               }
                environment {
-                  scannerHome = tool 'sonar'
+                  scannerHome = tool 'Sonar'
                }
              steps {
                    script {
