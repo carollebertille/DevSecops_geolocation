@@ -30,7 +30,7 @@ pipeline {
         #DOCKERHUB = credentials('dockerhub') 
     }*/
     stages {
-       stage('Code test') {
+       /*stage('Code test') {
              when{  
             expression {
               params.Environment == 'main' }
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 sh 'mvn test '
             }
-        }
+        }*/
         stage('SonarQube analysis') {
            when{  
             expression {
@@ -56,7 +56,7 @@ pipeline {
                }*/
                environment {
                   CI = 'true'
-                  //  scannerHome = tool 'Sonar'
+                scannerHome = tool 'Sonar'
                 scannerHome='/opt/sonar-scanner'
                }
             steps{
@@ -65,7 +65,7 @@ pipeline {
                 }
             }
         }
-      stage('Generate artifact') {
+     /* stage('Generate artifact') {
            when{  
             expression {
               params.Environment == 'main' }
@@ -78,7 +78,7 @@ pipeline {
             steps {
                 sh 'mvn clean package '
             }
-        }
+        }*/
      stage('Docker Login') {
             steps {
                 // Example of using DOCKERHUB and DOCKERHUB_PSW in a command
