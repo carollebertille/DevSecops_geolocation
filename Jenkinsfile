@@ -49,14 +49,16 @@ pipeline {
             expression {
               params.Environment == 'main' }
               }
-                   
-              def scannerHome = tool 'Sonar';
-            steps{
-                withSonarQubeEnv('SonarCloud') { 
-                   sh "${scannerHome}/bin/sonar-scanner"
-                }
-            }
-        }
+             steps {
+               script {
+                  def scannerHome = tool 'Sonar'
+
+                   withSonarQubeEnv('SonarCloud') { 
+                     sh "${scannerHome}/bin/sonar-scanner"
+                   }
+              }
+           }
+      }
      /* stage('Generate artifact') {
            when{  
             expression {
