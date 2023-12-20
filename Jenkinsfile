@@ -17,7 +17,6 @@ pipeline {
         )
     }
     environment {
-        DOCKERHUB = credentials('dockerhub') 
         IMAGE_NAME = "geolocation"
         DOCKERHUB_ID = "edennolan2021"
         DOCKERHUB_PASSWORD = credentials('dockerhub')
