@@ -15,20 +15,13 @@ pipeline {
             choices: ['dev', 'main'], 
             name: 'Environment'
         )
-        string(
-            defaultValue: 'defaultUsername',
-            description: 'DockerHub Username',
-            name: 'DOCKERHUB'
-        )
-        password(
-            defaultValue: 'defaultPassword',
-            description: 'DockerHub Password',
-            name: 'DOCKERHUB_PSW'
-        )
     }
-    /*environment {
-        #DOCKERHUB = credentials('dockerhub') 
-    }*/
+    environment {
+        DOCKERHUB = credentials('dockerhub') 
+        IMAGE_NAME = "geolocation"
+        DOCKERHUB_ID = "edennolan2021"
+        DOCKERHUB_PASSWORD = credentials('dockerhub')
+    }
     stages {
         stage('SonarQube analysis') {
            when{  
@@ -46,35 +39,6 @@ pipeline {
                    }
             }
         }
-      
-     /* stage('Generate artifact') {
-           when{  
-            expression {
-              params.Environment == 'main' }
-              }
-            /*agent {
-                docker {
-                  image 'maven:3.8-eclipse-temurin-17'
-                }
-               }*/
-            steps {
-                sh 'mvn clean package '
-            }
-        }*/
-     stage('Docker Login') {
-            steps {
-                // Example of using DOCKERHUB and DOCKERHUB_PSW in a command
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKERHUB_PSW', usernameVariable: 'DOCKERHUB')]) {
-                        sh """
-                            docker login -u \$DOCKERHUB -p \$DOCKERHUB_PSW
-                           
-                        """
-                    }
-                }
-            }
-        }
-
         stage('Build image') {
            when{  
             expression {
@@ -83,7 +47,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker build -t edennolan2021/geolocation:${BUILD_NUMBER} .
+                        docker build -t DOCKERHUB_ID/IMAGE_NAME:${BUILD_NUMBER} .
                     '''
                 }
             }
@@ -96,25 +60,24 @@ pipeline {
             steps {
                 script{
                     sh '''
-                    echo "Starting Image scan edennolan2021/geolocation:${BUILD_NUMBER} ..." 
+                    echo "Starting Image scan DOCKERHUB_ID/IMAGE_NAME:${BUILD_NUMBER} ..." 
                     echo There is Scan result : 
-                    SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker edennolan2021/geolocation:${BUILD_NUMBER} --json ||  if [[ $? -gt "1" ]];then echo -e "Warning, you must see scan result \n" ;  false; elif [[ $? -eq "0" ]]; then   echo "PASS : Nothing to Do"; elif [[ $? -eq "1" ]]; then   echo "Warning, passing with something to do";  else false; fi)
+                    SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker DOCKERHUB_ID/IMAGE_NAME:${BUILD_NUMBER} --json ||  if [[ $? -gt "1" ]];then echo -e "Warning, you must see scan result \n" ;  false; elif [[ $? -eq "0" ]]; then   echo "PASS : Nothing to Do"; elif [[ $? -eq "1" ]]; then   echo "Warning, passing with something to do";  else false; fi)
                     echo "Scan ended"
                     '''
                 }
             }
         }
-        stage('push auth ') {
+        stage('push image') {
            when{  
             expression {
               params.Environment == 'main' }
               }
             steps {
                 script {
-                    
-                    sh '''
-                        docker push edennolan2021/geolocation:${BUILD_NUMBER} 
-                    '''
+                    sh '
+                        docker pushDOCKERHUB_ID/IMAGE_NAME:${BUILD_NUMBER}
+                      '
                 }
             }
         }
