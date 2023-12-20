@@ -30,20 +30,6 @@ pipeline {
         #DOCKERHUB = credentials('dockerhub') 
     }*/
     stages {
-       /*stage('Code test') {
-             when{  
-            expression {
-              params.Environment == 'main' }
-              }
-            /*agent {
-                docker {
-                  image 'maven:3.8-eclipse-temurin-17'
-                }
-               }*/
-            steps {
-                sh 'mvn test '
-            }
-        }*/
         stage('SonarQube analysis') {
            when{  
             expression {
