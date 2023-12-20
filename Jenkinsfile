@@ -49,19 +49,11 @@ pipeline {
             expression {
               params.Environment == 'main' }
               }
-            /*agent {
-                docker {
-                  image 'sonarsource/sonar-scanner-cli:4.7.0'
-                }
-               }*/
-               environment {
-                  CI = 'true'
-                scannerHome = tool 'Sonar'
-                scannerHome='/opt/sonar-scanner'
-               }
+                   
+              def scannerHome = tool 'Sonar';
             steps{
-                withSonarQubeEnv('Sonar') {
-                    sh "${scannerHome}/bin/sonar-scanner"
+                withSonarQubeEnv('SonarCloud') { 
+                   sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
         }
