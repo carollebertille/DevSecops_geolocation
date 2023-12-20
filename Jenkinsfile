@@ -53,11 +53,13 @@ pipeline {
                   scannerHome = tool 'sonar'
                }
              steps {
-                   withSonarQubeEnv('sonarqube-server') { 
-                     sh "${scannerHome}/bin/sonar-scanner"
+                   script {
+                       withSonarQubeEnv('sonarqube-server') {
+                          sh "${scannerHome}/bin/sonar-scanner"
+                       }
                    }
-              }
-           }
+            }
+        }
       
      /* stage('Generate artifact') {
            when{  
