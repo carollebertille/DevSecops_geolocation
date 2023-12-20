@@ -50,10 +50,10 @@ pipeline {
               params.Environment == 'main' }
               }
                environment {
-                  scannerHome = tool 'sonar_scanner'
+                  scannerHome = tool 'sonar'
                }
              steps {
-                   withSonarQubeEnv('SonarCloud') { 
+                   withSonarQubeEnv('sonarqube-server') { 
                      sh "${scannerHome}/bin/sonar-scanner"
                    }
               }
