@@ -75,9 +75,9 @@ pipeline {
               }
             steps {
                 script {
-                    sh '
+                    sh '''
                         docker pushDOCKERHUB_ID/IMAGE_NAME:${BUILD_NUMBER}
-                      '
+                      '''
                 }
             }
         }
