@@ -23,6 +23,20 @@ pipeline {
         DOCKERHUB_PASSWORD = credentials('dockerhub')
     }
     stages {
+        stage('maven build') {
+            when{  
+            expression {
+              params.Environment == 'dev' }
+              }
+            agent {
+                docker{
+                    image 'maven:3.8.3-openjdk-11'
+                }
+            }
+            steps {
+                sh  'mvn clean install package'
+            }
+        }
         stage('SonarQube analysis') {
            when{  
             expression {
