@@ -30,7 +30,7 @@ pipeline {
               }
             agent {
                 docker{
-                    image 'maven:3-ibmjava-8'
+                    image 'edennolan2021/maven:3.6-openjdk-11'
                 }
             }
             steps {
@@ -44,7 +44,7 @@ pipeline {
               }
                 agent {
                  docker {
-                 image 'sonarsource/sonar-scanner-cli:4.7.0'
+                 image 'edennolan2021/sonar-scanner-cli:4.8'
                  }
              }
                 environment {
