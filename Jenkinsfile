@@ -30,7 +30,7 @@ pipeline {
               }
             agent {
                 docker{
-                    image 'maven:3.9.6-eclipse-temurin-21-alpine'
+                    image 'maven:3-ibmjava-8'
                 }
             }
             steps {
