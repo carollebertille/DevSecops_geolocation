@@ -1,8 +1,9 @@
 @Library('jenkins-shared-library')_
+
 pipeline {
     agent any 
     tools {
-        maven 'Maven' // Name of the Maven installation configured in Jenkins
+        maven 'Maven' 
     }
     options {
         buildDiscarder(logRotator(numToKeepStr:'2'))
@@ -17,38 +18,41 @@ pipeline {
         )
     }
     environment {
+        DOCKERHUB_ID= "edennolan2021"
         IMAGE_NAME = "geolocation"
-        DOCKERHUB_ID = "edennolan2021"
         DOCKERHUB_PASSWORD = credentials('dockerhub')
     }
     stages {
-        /*stage('SonarQube analysis') {
+        stage('SonarQube analysis') {
            when{  
             expression {
-              params.Environment == 'main' }
+              params.Environment == 'dev' }
               }
-               environment {
-                  scannerHome = tool 'Sonar'
-               }
-             steps {
-                   script {
-                       withSonarQubeEnv('SonarCloud') {
-                          sh "${scannerHome}/bin/sonar-scanner"
-                       }
-                   }
+                agent {
+                 docker {
+                 image 'sonarsource/sonar-scanner-cli:4.7.0'
+                 }
+             }
+                environment {
+                 CI = 'true'
+                  scannerHome='/opt/sonar-scanner'
             }
-        }
-
+          steps{
+               withSonarQubeEnv('Sonar') {
+                 sh "${scannerHome}/bin/sonar-scanner"
+            }
+          }
+       }
         stage("Quality Gate") {
             steps {
                 // Wait for the SonarQube quality gate
                 waitForQualityGate abortPipeline: true
             }
-        }*/
+        }
         stage('Build image') {
            when{  
             expression {
-              params.Environment == 'main' }
+              params.Environment == 'dev' }
               }
             steps {
                 script {
@@ -60,6 +64,10 @@ pipeline {
         }
         stage('Scan Image with  SNYK') {
             agent any
+            when{  
+            expression {
+              params.Environment == 'dev' }
+              }
             environment{
                 SNYK_TOKEN = credentials('snyk_token')
             }
@@ -74,19 +82,19 @@ pipeline {
                 }
             }
         }
-        stage('push image') {
+        stage('Login and push image') {
            when{  
             expression {
-              params.Environment == 'main' }
+              params.Environment == 'dev' }
               }
             steps {
                 script {
                     sh '''
+                        echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_ID --password-stdin
                         docker push $DOCKERHUB_ID/$IMAGE_NAME:${BUILD_NUMBER}
                       '''
                 }
             }
         }
-
  }
 }
