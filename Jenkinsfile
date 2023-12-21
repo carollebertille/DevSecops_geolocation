@@ -34,7 +34,7 @@ pipeline {
                 }
             }
             steps {
-                sh  'mvn clean install package'
+                sh  'mvn test'
             }
         }
         stage('SonarQube analysis') {
@@ -51,7 +51,7 @@ pipeline {
                  CI = 'true'
                   scannerHome='/opt/sonar-scanner'
             }
-          steps{
+             steps{
                withSonarQubeEnv('Sonar') {
                  sh "${scannerHome}/bin/sonar-scanner"
             }
@@ -61,6 +61,20 @@ pipeline {
             steps {
                 // Wait for the SonarQube quality gate
                 waitForQualityGate abortPipeline: true
+            }
+        }
+        stage('maven build') {
+            when{  
+            expression {
+              params.Environment == 'dev' }
+              }
+            agent {
+                docker{
+                    image 'edennolan2021/maven:3.6-openjdk-11'
+                }
+            }
+            steps {
+                sh  'mvn clean install package'
             }
         }
         stage('Build image') {
