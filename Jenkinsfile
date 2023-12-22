@@ -1,10 +1,9 @@
 @Library('jenkins-shared-library')_
 
 pipeline {
-    agent any 
-    tools {
-        maven 'Maven' 
-    }
+    agent {
+     label ("node1")
+          }
     options {
         buildDiscarder(logRotator(numToKeepStr:'2'))
         disableConcurrentBuilds()
@@ -15,14 +14,30 @@ pipeline {
         choice(
             choices: ['dev', 'main'], 
             name: 'Environment'
-        )
+          )
     }
     environment {
         DOCKERHUB_ID= "edennolan2021"
         IMAGE_NAME = "geolocation"
         DOCKERHUB_PASSWORD = credentials('dockerhub')
+        DEV_VERSION="0.0.${BUILD_NUMBER}
+        STAGE_VERSION="0.0.${BUILD_NUMBER}
+        RC_VERSION="1.0.${BUILD_NUMBER}
     }
     stages {
+        stage('Login and push image') {
+           when{  
+            expression {
+              params.Environment == 'dev' }
+              }
+            steps {
+                script {
+                    sh '''
+                        echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_ID --password-stdin
+                      '''
+                }
+            }
+        }
         stage('maven build') {
             when{  
             expression {
@@ -47,7 +62,7 @@ pipeline {
                  image 'edennolan2021/sonar-scanner-cli:4.8'
                  }
              }
-                environment {
+            environment {
                  CI = 'true'
                   scannerHome='/opt/sonar-scanner'
             }
@@ -85,7 +100,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker build -t $DOCKERHUB_ID/$IMAGE_NAME:${BUILD_NUMBER} .
+                        docker build -t $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION .
                     '''
                 }
             }
@@ -102,15 +117,15 @@ pipeline {
             steps {
                 script{
                     sh '''
-                    echo "Starting Image scan $DOCKERHUB_ID/$IMAGE_NAME:${BUILD_NUMBER} ..." 
+                    echo "Starting Image scan $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION ..." 
                     echo There is Scan result : 
-                    SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker $DOCKERHUB_ID/$IMAGE_NAME:${BUILD_NUMBER} --json ||  if [[ $? -gt "1" ]];then echo -e "Warning, you must see scan result \n" ;  false; elif [[ $? -eq "0" ]]; then   echo "PASS : Nothing to Do"; elif [[ $? -eq "1" ]]; then   echo "Warning, passing with something to do";  else false; fi)
+                    SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION --json ||  if [[ $? -gt "1" ]];then echo -e "Warning, you must see scan result \n" ;  false; elif [[ $? -eq "0" ]]; then   echo "PASS : Nothing to Do"; elif [[ $? -eq "1" ]]; then   echo "Warning, passing with something to do";  else false; fi)
                     echo "Scan ended"
                     '''
                 }
             }
         }
-        stage('Login and push image') {
+        stage('push image') {
            when{  
             expression {
               params.Environment == 'dev' }
@@ -118,8 +133,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_ID --password-stdin
-                        docker push $DOCKERHUB_ID/$IMAGE_NAME:${BUILD_NUMBER}
+                        docker push $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION
                       '''
                 }
             }
