@@ -12,7 +12,7 @@ pipeline {
       }
     parameters {
         choice(
-            choices: ['dev', 'main'], 
+            choices: ['DEV', 'SANDBOX', 'PROD'], 
             name: 'Environment'
           )
     }
@@ -25,11 +25,7 @@ pipeline {
         RC_VERSION="1.0.${BUILD_NUMBER}
     }
     stages {
-        stage('Login and push image') {
-           when{  
-            expression {
-              params.Environment == 'dev' }
-              }
+        stage('Login Dockerhub') {
             steps {
                 script {
                     sh '''
@@ -41,7 +37,7 @@ pipeline {
         stage('maven build') {
             when{  
             expression {
-              params.Environment == 'dev' }
+              params.Environment == 'DEV' }
               }
             agent {
                 docker{
@@ -55,7 +51,7 @@ pipeline {
         stage('SonarQube analysis') {
            when{  
             expression {
-              params.Environment == 'dev' }
+              params.Environment == 'DEV' }
               }
                 agent {
                  docker {
@@ -81,7 +77,7 @@ pipeline {
         stage('maven build') {
             when{  
             expression {
-              params.Environment == 'dev' }
+              params.Environment == 'DEV' }
               }
             agent {
                 docker{
@@ -95,7 +91,7 @@ pipeline {
         stage('Build image') {
            when{  
             expression {
-              params.Environment == 'dev' }
+              params.Environment == 'DEV' }
               }
             steps {
                 script {
@@ -109,7 +105,7 @@ pipeline {
             agent any
             when{  
             expression {
-              params.Environment == 'dev' }
+              params.Environment == 'DEV' }
               }
             environment{
                 SNYK_TOKEN = credentials('snyk_token')
@@ -119,21 +115,96 @@ pipeline {
                     sh '''
                     echo "Starting Image scan $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION ..." 
                     echo There is Scan result : 
-                    SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION --json ||  if [[ $? -gt "1" ]];then echo -e "Warning, you must see scan result \n" ;  false; elif [[ $? -eq "0" ]]; then   echo "PASS : Nothing to Do"; elif [[ $? -eq "1" ]]; then   echo "Warning, passing with something to do";  else false; fi)
+                    SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION --json ||  if [ $? -gt "1" ];then echo -e "Warning, you must see scan result \n" ;  false; elif [ $? -eq "0" ]; then   echo "PASS : Nothing to Do"; elif [ $? -eq "1" ]; then   echo "Warning, passing with something to do";  else false; fi)
                     echo "Scan ended"
                     '''
                 }
             }
         }
-        stage('push image') {
+        stage('Package dev') {
            when{  
             expression {
-              params.Environment == 'dev' }
+              params.Environment == 'DEV' }
               }
             steps {
                 script {
                     sh '''
                         docker push $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION
+                      '''
+                }
+            }
+        }
+         stage('Package sandbox') {
+           when{  
+            expression {
+              params.Environment == 'SANDBOX' }
+              }
+            steps {
+                script {
+                    sh '''
+                        docker pull $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION
+                        docker tag $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION $DOCKERHUB_ID/$IMAGE_NAME:$STAGE_VERSION
+                        docker push $DOCKERHUB_ID/$IMAGE_NAME:$STAGE_VERSION
+                      '''
+                }
+            }
+        }
+        stage('Package prod') {
+           when{  
+            expression {
+              params.Environment == 'PROD' }
+              }
+            steps {
+                script {
+                    sh '''
+                        docker pull $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION
+                        docker tag $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION $DOCKERHUB_ID/$IMAGE_NAME:$RC_VERSION
+                        docker push $DOCKERHUB_ID/$IMAGE_NAME:$RC_VERSION
+                      '''
+                }
+            }
+        }
+        stage('Deploy dev') {
+           when{  
+            expression {
+              params.Environment == 'DEV' }
+              }
+            steps {
+                script {
+                    sh '''
+                        docker pull $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION
+                        docker tag $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION $DOCKERHUB_ID/$IMAGE_NAME:$RC_VERSION
+                        docker push $DOCKERHUB_ID/$IMAGE_NAME:$RC_VERSION
+                      '''
+                }
+            }
+        }
+        stage('Deploy sandbox') {
+           when{  
+            expression {
+              params.Environment == 'SANDBOX' }
+              }
+            steps {
+                script {
+                    sh '''
+                        docker pull $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION
+                        docker tag $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION $DOCKERHUB_ID/$IMAGE_NAME:$RC_VERSION
+                        docker push $DOCKERHUB_ID/$IMAGE_NAME:$RC_VERSION
+                      '''
+                }
+            }
+        }
+        stage('Deploy prod') {
+           when{  
+            expression {
+              params.Environment == 'PROD' }
+              }
+            steps {
+                script {
+                    sh '''
+                        docker pull $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION
+                        docker tag $DOCKERHUB_ID/$IMAGE_NAME:$DEV_VERSION $DOCKERHUB_ID/$IMAGE_NAME:$RC_VERSION
+                        docker push $DOCKERHUB_ID/$IMAGE_NAME:$RC_VERSION
                       '''
                 }
             }
