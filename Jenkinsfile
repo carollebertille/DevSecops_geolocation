@@ -1,9 +1,7 @@
 @Library('jenkins-shared-library')_
 
 pipeline {
-    agent {
-     label ("node1")
-          }
+    agent any
     options {
         buildDiscarder(logRotator(numToKeepStr:'2'))
         disableConcurrentBuilds()
@@ -191,8 +189,16 @@ pipeline {
             steps {
                 sh "Wait for argocd"
             }
-        }
-                    
-        
+        }            
  }
+
+  post {
+    always {
+       script {
+         /* Use slackNotifier.groovy from shared library and provide current build result as parameter */
+         clean
+         slackNotifier currentBuild.result
+     }
+    }
+    }  
 }
